@@ -9,8 +9,10 @@ namespace Reanim2UnityAnim.Editor.Data
 	[Serializable]
 	public class Reanim2UnityAnimConfig : ScriptableObject
 	{
-		public string            filePath;
-		public List<Root2Childs> root2Childs      = new List<Root2Childs>();
-		public List<Partition>   customPartitions = new List<Partition>();
+		public string filePath;
+		public Vector2 center = new Vector2(0.4f, 0.7f);
+		public List<Root2Childs> root2Childs = new List<Root2Childs>();
+		public List<Partition> customPartitions = new List<Partition>();
+		public List<string> repeatables = new List<string>();
 	}
 }

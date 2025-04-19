@@ -29,9 +29,9 @@ namespace Reanim2UnityAnim.Editor
 				AnimationClip clip = new AnimationClip
 				{ frameRate = 12, name = partition.name };
 
-				CreateRootFrames(rootTracks, partition, clip);
+				CreateRootFrames(rootTracks, partition, clip, config.center);
 
-				CreateSpriteFrames(spriteTracks, partition, clip);
+				CreateSpriteFrames(spriteTracks, partition, clip, config.center);
 
 				clips.Add(clip);
 			}
@@ -39,7 +39,7 @@ namespace Reanim2UnityAnim.Editor
 			CreateAssets(config.name, spriteTracks, clips);
 		}
 
-		private static void CreateSpriteFrames(List<SpriteTrack> spriteTracks, Partition partition, AnimationClip clip)
+		private static void CreateSpriteFrames(List<SpriteTrack> spriteTracks, Partition partition, AnimationClip clip, Vector2 center)
 		{
 			foreach (SpriteTrack spriteTrack in spriteTracks)
 			{
@@ -88,8 +88,21 @@ namespace Reanim2UnityAnim.Editor
 					{
 						int currentFrameInPartition = frameIndex - partition.startIndexInclude;
 						float currentTime = currentFrameInPartition / 12f;
-						if (x != null) keyframesX.Add(new Keyframe(currentTime, x.Value - spriteTrack.ParentX));
-						if (y != null) keyframesY.Add(new Keyframe(currentTime, y.Value - spriteTrack.ParentY));
+
+						float dx, dy;
+						if (spriteTrack.Parent != null)
+						{
+							dx = spriteTrack.Parent.startX;
+							dy = spriteTrack.Parent.startY;
+						}
+						else
+						{
+							dx = center.x;
+							dy = -center.y;
+						}
+
+						if (x != null) keyframesX.Add(new Keyframe(currentTime, x.Value - dx));
+						if (y != null) keyframesY.Add(new Keyframe(currentTime, y.Value - dy));
 						if (ax != null) keyframesAngleX.Add(new Keyframe(currentTime, ax.Value));
 						if (ay != null) keyframesAngleY.Add(new Keyframe(currentTime, ay.Value));
 						if (sx != null) keyframesSx.Add(new Keyframe(currentTime, sx.Value));
@@ -110,7 +123,7 @@ namespace Reanim2UnityAnim.Editor
 			}
 		}
 
-		private static void CreateRootFrames(List<RootTrack> rootTracks, Partition partition, AnimationClip clip)
+		private static void CreateRootFrames(List<RootTrack> rootTracks, Partition partition, AnimationClip clip, Vector2 center)
 		{
 			foreach (RootTrack rootTrack in rootTracks)
 			{
@@ -132,8 +145,8 @@ namespace Reanim2UnityAnim.Editor
 					{
 						int currentFrameInPartition = frameIndex - partition.startIndexInclude;
 						float currentTime = currentFrameInPartition / 12f;
-						if (x != null) keyframesX.Add(new Keyframe(currentTime, x.Value));
-						if (y != null) keyframesY.Add(new Keyframe(currentTime, y.Value));
+						if (x != null) keyframesX.Add(new Keyframe(currentTime, x.Value - center.x));
+						if (y != null) keyframesY.Add(new Keyframe(currentTime, y.Value + center.y));
 					}
 				}
 				BindKeyframes(keyframesX, clip, rootTrack.Name, typeof(Transform), "localPosition.x");
@@ -162,7 +175,19 @@ namespace Reanim2UnityAnim.Editor
 
 				foreach (string sprite in sprites)
 				{
-					if (spriteTracks.Find(spriteTrack => spriteTrack.Name == sprite) == null)
+					if (config.repeatables.Contains(sprite))
+					{
+						SpriteTrack spriteTrack = new SpriteTrack(track.Name, track.Transforms, sprite);
+						foreach (Root2Childs root2Child in config.root2Childs)
+						{
+							if (root2Child.childs.Contains(track.Name))
+							{
+								spriteTrack.Parent = rootTracks.Find(rootTrack => rootTrack.Name == root2Child.root);
+							}
+						}
+						spriteTracks.Add(spriteTrack);
+					}
+					else if (spriteTracks.Find(spriteTrack => spriteTrack.Name == sprite) == null)
 					{
 						SpriteTrack spriteTrack = new SpriteTrack(sprite, track.Transforms);
 						foreach (Root2Childs root2Child in config.root2Childs)
@@ -234,13 +259,13 @@ namespace Reanim2UnityAnim.Editor
 			}
 			AssetDatabase.Refresh();
 
-			Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/GameUnitShader_Mat.mat");
+			Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Reanim2UnityAnim/GameUnitShader_Mat.mat");
 
 			for (int index = 0; index < spriteTracks.Count; index++)
 			{
 				SpriteTrack spriteTrack = spriteTracks[index];
 				GameObject child = new GameObject(spriteTrack.Name);
-				Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Reanim2UnityAnim/reanim_all/" + spriteTrack.Name + ".png");
+				Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Reanim2UnityAnim/reanim_all/" + spriteTrack.ImageName + ".png");
 				SpriteRenderer spriteRenderer = child.AddComponent<SpriteRenderer>();
 				spriteRenderer.sprite = sprite;
 				spriteRenderer.material = mat;
@@ -262,6 +287,10 @@ namespace Reanim2UnityAnim.Editor
 				spriteRenderers.Add(spriteRenderer);
 			}
 			materialController.spriteRenderers = spriteRenderers.ToArray();
+
+			PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, targetFolder + $"{name}.prefab", InteractionMode.AutomatedAction);
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
 		}
 	}
 }

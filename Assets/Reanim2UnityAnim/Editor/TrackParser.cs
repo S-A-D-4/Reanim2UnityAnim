@@ -10,6 +10,9 @@ using UnityEngine;
 
 namespace Reanim2UnityAnim.Editor
 {
+	/// <summary>
+	/// 用于将reanim文件解析为List<Track>
+	/// </summary>
 	public class TrackParser
 	{
 		// 辅助方法，用于安全地将字符串解析为 nullable float

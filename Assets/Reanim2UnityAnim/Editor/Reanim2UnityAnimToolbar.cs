@@ -1,4 +1,5 @@
-﻿using Reanim2UnityAnim.Editor.Data;
+﻿using JetBrains.Annotations;
+using Reanim2UnityAnim.Editor.Data;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,6 +7,7 @@ namespace Reanim2UnityAnim.Editor
 {
 	public class Reanim2UnityAnimToolbar : EditorWindow
 	{
+		[CanBeNull]
 		private Reanim2UnityAnimConfig data;
 
 		[MenuItem("Window/Reanim2UnityAnim")]
@@ -14,19 +16,6 @@ namespace Reanim2UnityAnim.Editor
 			GetWindow<Reanim2UnityAnimToolbar>("Reanim2UnityAnimToolbar");
 		}
 
-		private void OnEnable()
-		{
-			data = AssetDatabase.LoadAssetAtPath<Reanim2UnityAnimConfig>(
-				"Assets/Reanim2UnityAnim/Editor/Reanim2UnityAnimConfig.asset");
-			if (data == null)
-			{
-				data = CreateInstance<Reanim2UnityAnimConfig>();
-				AssetDatabase.CreateAsset(data, "Assets/Reanim2UnityAnim/Editor/Reanim2UnityAnimConfig.asset");
-				SaveData();
-			}
-		}
-
-
 		private void SaveData()
 		{
 			EditorUtility.SetDirty(data);
@@ -34,12 +23,17 @@ namespace Reanim2UnityAnim.Editor
 			AssetDatabase.Refresh();
 		}
 
-
 		private void OnGUI()
 		{
 			data = (Reanim2UnityAnimConfig)EditorGUILayout.ObjectField(data, typeof(Reanim2UnityAnimConfig), false);
 
-			GUILayout.Label($"当前选择的文件: \n{data.filePath}");
+			if (data == null)
+			{
+				GUILayout.Label("未选择配置文件。");
+				return;
+			}
+			
+			GUILayout.Label($"当前选择的reanim文件: \n{data.filePath}");
 
 			// 文件夹选择按钮
 			if (GUILayout.Button("选择文件"))
@@ -55,6 +49,8 @@ namespace Reanim2UnityAnim.Editor
 					Debug.Log("未选择.reanim文件");
 				}
 			}
+
+			data.center = EditorGUILayout.Vector2Field("中心", data.center);
 
 			// 增加输入栏按钮
 			if (GUILayout.Button("添加Root"))
@@ -75,7 +71,7 @@ namespace Reanim2UnityAnim.Editor
 				}
 
 				// 删除输入栏按钮
-				if (GUILayout.Button("关闭"))
+				if (GUILayout.Button("删除"))
 				{
 					data.root2Childs.RemoveAt(i);
 					GUILayout.EndHorizontal();
@@ -92,7 +88,7 @@ namespace Reanim2UnityAnim.Editor
 						= EditorGUILayout.TextField($"子项 {(i + 1)}.{(j + 1)}", data.root2Childs[i].childs[j]);
 
 					// 删除子项按钮
-					if (GUILayout.Button("关闭"))
+					if (GUILayout.Button("删除"))
 					{
 						data.root2Childs[i].childs.RemoveAt(j);
 						GUILayout.EndHorizontal();
@@ -101,8 +97,8 @@ namespace Reanim2UnityAnim.Editor
 					GUILayout.EndHorizontal();
 				}
 			}
-			
-			// 自定义轨道
+
+			// 自定义分割
 			if (GUILayout.Button("添加自定义分割"))
 			{
 				data.customPartitions.Add(new Partition("UnNamedPartition", 0, 0));
@@ -111,15 +107,35 @@ namespace Reanim2UnityAnim.Editor
 			for (int i = 0; i < data.customPartitions.Count; i++)
 			{
 				GUILayout.BeginHorizontal();
-				data.customPartitions[i].name = EditorGUILayout.TextField($"分割 {(i + 1)}", data.customPartitions[i].name);
+				data.customPartitions[i].name = EditorGUILayout.TextField($"分割 {i + 1}", data.customPartitions[i].name);
 				data.customPartitions[i].startIndexInclude
 					= EditorGUILayout.IntField("开始帧（包含）", data.customPartitions[i].startIndexInclude);
 				data.customPartitions[i].endIndexExclude
 					= EditorGUILayout.IntField("结束帧（不包含）", data.customPartitions[i].endIndexExclude);
 				// 删除轨道按钮
-				if (GUILayout.Button("关闭"))
+				if (GUILayout.Button("删除"))
 				{
 					data.customPartitions.RemoveAt(i);
+					GUILayout.EndHorizontal();
+					continue;
+				}
+				GUILayout.EndHorizontal();
+			}
+
+			// 可重复图像
+			if (GUILayout.Button("添加可重复图像"))
+			{
+				data.repeatables.Add("UnNamedRepeatable");
+			}
+
+			for (int i = 0; i < data.repeatables.Count; i++)
+			{
+				GUILayout.BeginHorizontal();
+				data.repeatables[i] = EditorGUILayout.TextField($"可重复图像 {i + 1}", data.repeatables[i]);
+				// 删除轨道按钮
+				if (GUILayout.Button("删除"))
+				{
+					data.repeatables.RemoveAt(i);
 					GUILayout.EndHorizontal();
 					continue;
 				}

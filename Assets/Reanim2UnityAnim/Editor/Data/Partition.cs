@@ -3,14 +3,15 @@ using System.Collections.Generic;
 
 namespace Reanim2UnityAnim.Editor.Data
 {
+	/// <summary>
+	/// 代表完整动画的一个分段，含AnimationClip的基本信息
+	/// </summary>
 	[Serializable]
 	public class Partition
 	{
 		public string name;
 		public int    startIndexInclude;
 		public int    endIndexExclude;
-
-		public int Length => endIndexExclude - startIndexInclude;
 
 		public Partition(string name, int startIndexInclude, int endIndexExclude)
 		{

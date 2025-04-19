@@ -1,9 +1,11 @@
 #nullable enable
 using System.Collections.Generic;
 
-// 代表 <t> 元素
 namespace Reanim2UnityAnim.Editor.Data
 {
+	/// <summary>
+	/// 代表单个部件在某一帧内的状态
+	/// </summary>
 	public class Frame
 	{
 		public float?  X     { get; set; }

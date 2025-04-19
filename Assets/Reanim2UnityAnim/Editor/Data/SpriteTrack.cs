@@ -2,20 +2,28 @@
 
 namespace Reanim2UnityAnim.Editor.Data
 {
+	/// <summary>
+	/// 代表动画中的单个Sprite部件的各种信息
+	/// </summary>
 	public class SpriteTrack : Track
 	{
 		public string ParentPath => Parent?.Name;
 
 		public string Path => ParentPath == null ? Name : $"{Parent.Name}/{Name}";
-		
+
 		public RootTrack Parent { get; set; }
 
-		public float ParentX => Parent?.startX ?? 0;
-		
-		public float ParentY => Parent?.startY ?? 0;
+		private string imageName;
 
-		public SpriteTrack(string spriteName, List<Frame> transforms) : base(spriteName, transforms)
+		public string ImageName => imageName ?? Name;
+
+		public SpriteTrack(string childName, List<Frame> transforms, string imageName = null) : base(childName, transforms)
 		{
+			if (imageName != null)
+			{
+				this.imageName = imageName;
+				return;
+			}
 			for (int index = 0; index < Transforms.Count; index++)
 			{
 				Frame transform = Transforms[index];
@@ -23,7 +31,7 @@ namespace Reanim2UnityAnim.Editor.Data
 				{
 					transform.F = -1;
 				}
-				if (transform.Image == spriteName)
+				if (transform.Image == childName)
 				{
 					transform.F = 0;
 				}

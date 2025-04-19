@@ -1,15 +1,13 @@
-﻿Shader "Unlit/OriginalShader"
+﻿Shader "Unlit/GameUnitShader"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
         _AngleX ("AngleX", Float) = 0.0
         _AngleY ("AngleY", Float) = 0.0
-        _PositionX ("PositionX", Float) = 0.0
-        _PositionY ("PositionY", Float) = 0.0
         _ScaleX ("ScaleX", Float) = 1.0
         _ScaleY ("ScaleY", Float) = 1.0
-        _Alpha ("Alpha", Range(0,1)) = 1
+        _Alpha ("Alpha", Float) = 1
         _IsVisible ("IsVisible", Range(-1,0)) = 0
     }
     SubShader
@@ -19,18 +17,16 @@
             "RenderType"="Transparent"
             "Queue"="Transparent"
         }
-        LOD 100
 
         Pass
         {
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
+            Cull Off
 
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
 
@@ -43,7 +39,6 @@
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
 
@@ -51,8 +46,6 @@
             float4 _MainTex_ST;
             float _AngleX;
             float _AngleY;
-            float _PositionX;
-            float _PositionY;
             float _ScaleX;
             float _ScaleY;
             float _Rotation;
@@ -95,12 +88,8 @@
                 v_in = angle(v_in, sin_angle_x, cos_angle_x);
                 v_in = rotate(v_in, sin_rotation, cos_rotation);
 
-                v_in.x = v_in.x + _PositionX;
-                v_in.y = v_in.y + _PositionY;
-
                 o.vertex = UnityObjectToClipPos(float4(v_in.x, v_in.y, 0, 1.0));
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
             }
 

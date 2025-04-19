@@ -2,6 +2,9 @@
 
 namespace Reanim2UnityAnim.Editor.Data
 {
+	/// <summary>
+	/// 代表动画中的单个父部件的各种信息
+	/// </summary>
 	public class RootTrack : Track
 	{
 		public float startX { get; set; }
