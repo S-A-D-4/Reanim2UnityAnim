@@ -12,6 +12,5 @@ namespace Reanim2UnityAnim.Editor.Data
 		public string            filePath;
 		public List<Root2Childs> root2Childs      = new List<Root2Childs>();
 		public List<Partition>   customPartitions = new List<Partition>();
-		public List<Link>        links            = new List<Link>();
 	}
 }

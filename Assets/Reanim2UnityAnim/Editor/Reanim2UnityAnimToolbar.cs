@@ -101,32 +101,8 @@ namespace Reanim2UnityAnim.Editor
 					GUILayout.EndHorizontal();
 				}
 			}
-
-			if (GUILayout.Button("添加链接"))
-			{
-				data.links.Add(new Link());
-			}
-
-			// 显示链接
-			for (int i = data.links.Count - 1; i >= 0; i--)
-			{
-				GUILayout.BeginHorizontal();
-				data.links[i].parent = EditorGUILayout.TextField($"目标节点 {(i + 1)}", data.links[i].parent);
-				data.links[i].child = EditorGUILayout.TextField($"附属节点 {(i + 1)}", data.links[i].child);
-				data.links[i].correct_x = EditorGUILayout.FloatField("修正x", data.links[i].correct_x);
-				data.links[i].correct_y = EditorGUILayout.FloatField("修正y", data.links[i].correct_y);
-				// 删除链接按钮
-				if (GUILayout.Button("关闭"))
-				{
-					data.links.RemoveAt(i);
-					GUILayout.EndHorizontal();
-					continue;
-				}
-				GUILayout.EndHorizontal();
-			}
-
+			
 			// 自定义轨道
-
 			if (GUILayout.Button("添加自定义分割"))
 			{
 				data.customPartitions.Add(new Partition("UnNamedPartition", 0, 0));

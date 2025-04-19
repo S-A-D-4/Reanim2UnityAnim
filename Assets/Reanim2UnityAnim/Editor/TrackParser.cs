@@ -54,25 +54,23 @@ namespace Reanim2UnityAnim.Editor
 
 				List<Track> tracks = trackElements.Select(trackElement =>
 				{
-					Track track = new Track
-					{ // 获取 <name> 元素的值，如果不存在则为 null 或空
-					  Name = trackElement.Element("name")?.Value ?? string.Empty };
+					// 获取 <name> 元素的值，如果不存在则为 null 或空
+					string name = trackElement.Element("name")?.Value ?? string.Empty;
 
 					// 选择当前 <track> 下的所有 <t> 元素
-					track.Transforms = trackElement.Elements("t").Select(tElement => new Frame
+					List<Frame> transforms = trackElement.Elements("t").Select(tElement => new Frame
 					{ // 使用辅助方法安全地解析每个可选元素
-					  X     = TryParseFloat(tElement.Element("x")?.Value),
-					  Y     = TryParseFloat(tElement.Element("y")?.Value),
-					  Kx    = TryParseFloat(tElement.Element("kx")?.Value),
-					  Ky    = TryParseFloat(tElement.Element("ky")?.Value),
-					  Sx    = TryParseFloat(tElement.Element("sx")?.Value),
-					  Sy    = TryParseFloat(tElement.Element("sy")?.Value),
-					  Image = tElement.Element("i")?.Value.Substring(13),                          // 字符串可以直接赋值，null if missing
-					  F     = TryParseInt(tElement.Element("f")?.Value),
-					  A     = TryParseFloat(tElement.Element("a")?.Value),
-					}).ToList(); // 将结果转换为 List<Frame>
+					  X = TryParseFloat(tElement.Element("x")?.Value),
+					  Y = TryParseFloat(tElement.Element("y")?.Value),
+					  Kx = TryParseFloat(tElement.Element("kx")?.Value),
+					  Ky = TryParseFloat(tElement.Element("ky")?.Value),
+					  Sx = TryParseFloat(tElement.Element("sx")?.Value),
+					  Sy = TryParseFloat(tElement.Element("sy")?.Value),
+					  Image = tElement.Element("i")?.Value.Substring(13), // 字符串可以直接赋值，null if missing
+					  F = TryParseInt(tElement.Element("f")?.Value),
+					  A = TryParseFloat(tElement.Element("a")?.Value), }).ToList(); // 将结果转换为 List<Frame>
 
-					return track;
+					return new Track(name, transforms);
 				}).ToList(); // 将所有解析的 Track 对象收集到 List<Track>
 
 				return tracks;

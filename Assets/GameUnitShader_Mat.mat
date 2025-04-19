@@ -32,6 +32,10 @@ Material:
     - _Appear: 0
     - _HighLight: 0
     - _IsVisible: 0
+    - _PositionX: 0
+    - _PositionY: 0
+    - _ScaleX: 1
+    - _ScaleY: 1
     - _Transparency: 1
     m_Colors:
     - _ColorAppend: {r: 1, g: 1, b: 1, a: 0}
