@@ -176,7 +176,7 @@ namespace Reanim2UnityAnim.Editor
 
 				foreach (string sprite in sprites)
 				{
-					if (spriteTracks.Find(spriteTrack => spriteTrack.ImageName == sprite) == null)
+					if (spriteTracks.Find(spriteTrack => spriteTrack.ImageName == sprite && spriteTrack.Name == track.Name) == null)
 					{
 						SpriteTrack spriteTrack = new SpriteTrack(track.Name, track.Transforms, index, sprite);
 						foreach (Root2Childs root2Child in config.root2Childs)
@@ -190,7 +190,7 @@ namespace Reanim2UnityAnim.Editor
 					}
 				}
 			}
-			IEnumerable<IGrouping<string,SpriteTrack>> groupBy = spriteTracks.GroupBy(track => track.ImageName);
+			IEnumerable<IGrouping<string, SpriteTrack>> groupBy = spriteTracks.GroupBy(track => track.ImageName);
 
 			foreach (IGrouping<string, SpriteTrack> group in groupBy)
 			{
