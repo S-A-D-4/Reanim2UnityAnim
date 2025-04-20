@@ -168,7 +168,7 @@ namespace Reanim2UnityAnim.Editor
 						sprites.Add(frame.Image);
 					}
 				}
-				if (sprites.Count == 0 && track.Transforms.All(frame => frame.X == null))
+				if (sprites.Count == 0)
 				{
 					Partition partition = new Partition(track);
 					partitions.Add(partition);

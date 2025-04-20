@@ -75,6 +75,33 @@ namespace Reanim2UnityAnim.Editor
 
 					return new Track(name, transforms);
 				}).ToList(); // 将所有解析的 Track 对象收集到 List<Track>
+				
+				// 检查名字重复
+				// 1. 按 name 分组
+				var groupedItems = tracks.GroupBy(item => item.Name);
+
+				// 2. 遍历分组
+				foreach (var group in groupedItems)
+				{
+					// 3. 筛选出包含重复项的组 (元素个数 >= 2)
+					//    使用 ToList() 可以避免多次迭代 group 来获取 Count 和进行遍历
+					var itemList = group.ToList();
+					if (itemList.Count >= 2)
+					{
+						// 获取原始名称 (分组的 Key 就是原始名称)
+						string originalName = group.Key;
+						int counter = 1; // 初始化计数器
+
+						// 4. 重命名组内的每个 Item
+						foreach (var itemInGroup in itemList)
+						{
+							// 直接修改原始列表中对象的 name 属性
+							itemInGroup.Name = $"{originalName}_part{counter}";
+							counter++; // 递增计数器
+						}
+					}
+					// 如果组内只有一个元素 (Count < 2)，则名称是唯一的，无需处理
+				}
 
 				return tracks;
 			}
