@@ -17,21 +17,23 @@ namespace Reanim2UnityAnim.Editor.Data
 
 		public string ImageName => imageName ?? Name;
 
-		public SpriteTrack(string childName, List<Frame> transforms, string imageName = null) : base(childName, transforms)
+		public int Order { get; set; }
+
+		public SpriteTrack(string childName, List<Frame> transforms, int order, string imageName = null) : base(childName, transforms)
 		{
+			Order = order;
 			if (imageName != null)
 			{
 				this.imageName = imageName;
-				return;
 			}
 			for (int index = 0; index < Transforms.Count; index++)
 			{
 				Frame transform = Transforms[index];
-				if (transform.Image != null && transform.Image != Name)
+				if (transform.Image != null && transform.Image != ImageName)
 				{
 					transform.F = -1;
 				}
-				if (transform.Image == childName)
+				if (transform.Image == ImageName)
 				{
 					transform.F = 0;
 				}

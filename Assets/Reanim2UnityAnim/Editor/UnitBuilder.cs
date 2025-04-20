@@ -157,8 +157,9 @@ namespace Reanim2UnityAnim.Editor
 		private static void ClassifyTracks(Reanim2UnityAnimConfig config, List<Track> tracks, List<Partition> partitions,
 			List<SpriteTrack> spriteTracks, List<RootTrack> rootTracks)
 		{
-			foreach (Track track in tracks)
+			for (int index = 0; index < tracks.Count; index++)
 			{
+				Track track = tracks[index];
 				List<string> sprites = new List<string>();
 				foreach (Frame frame in track.Transforms)
 				{
@@ -177,19 +178,22 @@ namespace Reanim2UnityAnim.Editor
 				{
 					if (config.repeatables.Contains(sprite))
 					{
-						SpriteTrack spriteTrack = new SpriteTrack(track.Name, track.Transforms, sprite);
-						foreach (Root2Childs root2Child in config.root2Childs)
+						if (spriteTracks.Find(spriteTrack => spriteTrack.Name == sprite + $"({track.Name})") == null)
 						{
-							if (root2Child.childs.Contains(track.Name))
+							SpriteTrack spriteTrack = new SpriteTrack(sprite + $"({track.Name})", track.Transforms, index, sprite);
+							foreach (Root2Childs root2Child in config.root2Childs)
 							{
-								spriteTrack.Parent = rootTracks.Find(rootTrack => rootTrack.Name == root2Child.root);
+								if (root2Child.childs.Contains(track.Name))
+								{
+									spriteTrack.Parent = rootTracks.Find(rootTrack => rootTrack.Name == root2Child.root);
+								}
 							}
+							spriteTracks.Add(spriteTrack);
 						}
-						spriteTracks.Add(spriteTrack);
 					}
 					else if (spriteTracks.Find(spriteTrack => spriteTrack.Name == sprite) == null)
 					{
-						SpriteTrack spriteTrack = new SpriteTrack(sprite, track.Transforms);
+						SpriteTrack spriteTrack = new SpriteTrack(sprite, track.Transforms, index);
 						foreach (Root2Childs root2Child in config.root2Childs)
 						{
 							if (root2Child.childs.Contains(track.Name))
@@ -261,15 +265,14 @@ namespace Reanim2UnityAnim.Editor
 
 			Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Reanim2UnityAnim/GameUnitShader_Mat.mat");
 
-			for (int index = 0; index < spriteTracks.Count; index++)
+			foreach (SpriteTrack spriteTrack in spriteTracks)
 			{
-				SpriteTrack spriteTrack = spriteTracks[index];
 				GameObject child = new GameObject(spriteTrack.Name);
 				Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Reanim2UnityAnim/reanim_all/" + spriteTrack.ImageName + ".png");
 				SpriteRenderer spriteRenderer = child.AddComponent<SpriteRenderer>();
 				spriteRenderer.sprite = sprite;
 				spriteRenderer.material = mat;
-				spriteRenderer.sortingOrder = index;
+				spriteRenderer.sortingOrder = spriteTrack.Order;
 				if (spriteTrack.ParentPath != null)
 				{
 					Transform parent = gameObject.transform.Find(spriteTrack.ParentPath);
