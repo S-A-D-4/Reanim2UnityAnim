@@ -176,24 +176,9 @@ namespace Reanim2UnityAnim.Editor
 
 				foreach (string sprite in sprites)
 				{
-					if (config.repeatables.Contains(sprite))
+					if (spriteTracks.Find(spriteTrack => spriteTrack.ImageName == sprite) == null)
 					{
-						if (spriteTracks.Find(spriteTrack => spriteTrack.Name == sprite + $"({track.Name})") == null)
-						{
-							SpriteTrack spriteTrack = new SpriteTrack(sprite + $"({track.Name})", track.Transforms, index, sprite);
-							foreach (Root2Childs root2Child in config.root2Childs)
-							{
-								if (root2Child.childs.Contains(track.Name))
-								{
-									spriteTrack.Parent = rootTracks.Find(rootTrack => rootTrack.Name == root2Child.root);
-								}
-							}
-							spriteTracks.Add(spriteTrack);
-						}
-					}
-					else if (spriteTracks.Find(spriteTrack => spriteTrack.Name == sprite) == null)
-					{
-						SpriteTrack spriteTrack = new SpriteTrack(sprite, track.Transforms, index);
+						SpriteTrack spriteTrack = new SpriteTrack(track.Name, track.Transforms, index, sprite);
 						foreach (Root2Childs root2Child in config.root2Childs)
 						{
 							if (root2Child.childs.Contains(track.Name))
@@ -202,6 +187,25 @@ namespace Reanim2UnityAnim.Editor
 							}
 						}
 						spriteTracks.Add(spriteTrack);
+					}
+				}
+			}
+			IEnumerable<IGrouping<string,SpriteTrack>> groupBy = spriteTracks.GroupBy(track => track.ImageName);
+
+			foreach (IGrouping<string, SpriteTrack> group in groupBy)
+			{
+				if (group.Count() == 1)
+				{
+					foreach (SpriteTrack spriteTrack in group)
+					{
+						spriteTrack.Name = spriteTrack.ImageName;
+					}
+				}
+				else
+				{
+					foreach (SpriteTrack spriteTrack in group)
+					{
+						spriteTrack.Name = $"{spriteTrack.ImageName}({spriteTrack.Name})";
 					}
 				}
 			}

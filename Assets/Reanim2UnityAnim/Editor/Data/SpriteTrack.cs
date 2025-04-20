@@ -13,19 +13,14 @@ namespace Reanim2UnityAnim.Editor.Data
 
 		public RootTrack Parent { get; set; }
 
-		private string imageName;
-
-		public string ImageName => imageName ?? Name;
+		public string ImageName { get; set; }
 
 		public int Order { get; set; }
 
-		public SpriteTrack(string childName, List<Frame> transforms, int order, string imageName = null) : base(childName, transforms)
+		public SpriteTrack(string trackName, List<Frame> transforms, int order, string imageName) : base(trackName, transforms)
 		{
 			Order = order;
-			if (imageName != null)
-			{
-				this.imageName = imageName;
-			}
+			ImageName = imageName;
 			for (int index = 0; index < Transforms.Count; index++)
 			{
 				Frame transform = Transforms[index];

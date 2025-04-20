@@ -122,26 +122,6 @@ namespace Reanim2UnityAnim.Editor
 				GUILayout.EndHorizontal();
 			}
 
-			// 可重复图像
-			if (GUILayout.Button("添加可重复图像"))
-			{
-				data.repeatables.Add("UnNamedRepeatable");
-			}
-
-			for (int i = 0; i < data.repeatables.Count; i++)
-			{
-				GUILayout.BeginHorizontal();
-				data.repeatables[i] = EditorGUILayout.TextField($"可重复图像 {i + 1}", data.repeatables[i]);
-				// 删除轨道按钮
-				if (GUILayout.Button("删除"))
-				{
-					data.repeatables.RemoveAt(i);
-					GUILayout.EndHorizontal();
-					continue;
-				}
-				GUILayout.EndHorizontal();
-			}
-
 			// 操作按钮
 			if (GUILayout.Button("生成"))
 			{
