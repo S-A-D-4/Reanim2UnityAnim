@@ -160,6 +160,13 @@ namespace Reanim2UnityAnim.Editor
 			for (int index = 0; index < tracks.Count; index++)
 			{
 				Track track = tracks[index];
+				if (track.Name == "_ground")
+				{
+					RootTrack groundTrack = new RootTrack(track.Name, track.Transforms);
+					rootTracks.Add(groundTrack);
+					continue;
+				}
+				
 				List<string> sprites = new List<string>();
 				foreach (Frame frame in track.Transforms)
 				{
@@ -173,7 +180,7 @@ namespace Reanim2UnityAnim.Editor
 					Partition partition = new Partition(track);
 					partitions.Add(partition);
 
-					if (track.Transforms.Any(frame => frame.X != null || frame.Y != null))
+					if (track.Transforms.Count(frame => frame.X != null || frame.Y != null) > 2)
 					{
 						currentRoot = new RootTrack(track.Name, track.Transforms);
 						rootTracks.Add(currentRoot);

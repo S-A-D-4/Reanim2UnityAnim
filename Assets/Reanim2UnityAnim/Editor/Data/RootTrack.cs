@@ -10,6 +10,16 @@ namespace Reanim2UnityAnim.Editor.Data
 		public float startX { get; set; }
 		public float startY { get; set; }
 
-		public RootTrack(string name, List<Frame> transforms) : base(name, transforms) { }
+		public RootTrack(string name, List<Frame> transforms) : base(name, transforms)
+		{
+			if (name == "_ground")
+			{
+				Name = "";
+				foreach (Frame transform in Transforms)
+				{
+					transform.X = -transform.X;
+				}
+			}
+		}
 	}
 }
