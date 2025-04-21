@@ -52,54 +52,8 @@ namespace Reanim2UnityAnim.Editor
 
 			data.center = EditorGUILayout.Vector2Field("中心", data.center);
 
-			// 增加输入栏按钮
-			if (GUILayout.Button("添加Root"))
-			{
-				data.root2Childs.Add(new Root2Childs());
-			}
-
-			// 显示父子
-			for (int i = data.root2Childs.Count - 1; i >= 0; i--)
-			{
-				GUILayout.BeginHorizontal();
-				data.root2Childs[i].root = EditorGUILayout.TextField($"父项 {(i + 1)}", data.root2Childs[i].root);
-
-				// 添加子项按钮
-				if (GUILayout.Button("添加子项"))
-				{
-					data.root2Childs[i].childs.Add("");
-				}
-
-				// 删除输入栏按钮
-				if (GUILayout.Button("删除"))
-				{
-					data.root2Childs.RemoveAt(i);
-					GUILayout.EndHorizontal();
-					continue;
-				}
-				GUILayout.EndHorizontal();
-
-				// 显示关联的最终输入栏
-				for (int j = data.root2Childs[i].childs.Count - 1; j >= 0; j--)
-				{
-					GUILayout.BeginHorizontal();
-					GUILayout.Space(20); // 缩进子项
-					data.root2Childs[i].childs[j]
-						= EditorGUILayout.TextField($"子项 {(i + 1)}.{(j + 1)}", data.root2Childs[i].childs[j]);
-
-					// 删除子项按钮
-					if (GUILayout.Button("删除"))
-					{
-						data.root2Childs[i].childs.RemoveAt(j);
-						GUILayout.EndHorizontal();
-						continue;
-					}
-					GUILayout.EndHorizontal();
-				}
-			}
-
-			// 自定义分割
-			if (GUILayout.Button("添加自定义分割"))
+			// 自定义分段
+			if (GUILayout.Button("添加自定义分段"))
 			{
 				data.customPartitions.Add(new Partition("UnNamedPartition", 0, 0));
 			}
@@ -107,7 +61,7 @@ namespace Reanim2UnityAnim.Editor
 			for (int i = 0; i < data.customPartitions.Count; i++)
 			{
 				GUILayout.BeginHorizontal();
-				data.customPartitions[i].name = EditorGUILayout.TextField($"分割 {i + 1}", data.customPartitions[i].name);
+				data.customPartitions[i].name = EditorGUILayout.TextField($"分段 {i + 1}", data.customPartitions[i].name);
 				data.customPartitions[i].startIndexInclude
 					= EditorGUILayout.IntField("开始帧（包含）", data.customPartitions[i].startIndexInclude);
 				data.customPartitions[i].endIndexExclude

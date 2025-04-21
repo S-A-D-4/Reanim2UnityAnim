@@ -20,8 +20,8 @@ namespace Reanim2UnityAnim.Editor
 
 			List<SpriteTrack> spriteTracks = new List<SpriteTrack>();
 			List<Partition> partitions = new List<Partition>(config.customPartitions);
-			List<RootTrack> rootTracks = ParseRoots(config, tracks);
-			ClassifyTracks(config, tracks, partitions, spriteTracks, rootTracks);
+			List<RootTrack> rootTracks = new List<RootTrack>();
+			ClassifyTracks(tracks, partitions, spriteTracks, rootTracks);
 
 			List<AnimationClip> clips = new List<AnimationClip>();
 			foreach (Partition partition in partitions)
@@ -154,9 +154,9 @@ namespace Reanim2UnityAnim.Editor
 			}
 		}
 
-		private static void ClassifyTracks(Reanim2UnityAnimConfig config, List<Track> tracks, List<Partition> partitions,
-			List<SpriteTrack> spriteTracks, List<RootTrack> rootTracks)
+		private static void ClassifyTracks(List<Track> tracks, List<Partition> partitions, List<SpriteTrack> spriteTracks, List<RootTrack> rootTracks)
 		{
+			RootTrack? currentRoot = null;
 			for (int index = 0; index < tracks.Count; index++)
 			{
 				Track track = tracks[index];
@@ -172,6 +172,12 @@ namespace Reanim2UnityAnim.Editor
 				{
 					Partition partition = new Partition(track);
 					partitions.Add(partition);
+
+					if (track.Transforms.Any(frame => frame.X != null || frame.Y != null))
+					{
+						currentRoot = new RootTrack(track.Name, track.Transforms);
+						rootTracks.Add(currentRoot);
+					}
 				}
 
 				foreach (string sprite in sprites)
@@ -179,13 +185,7 @@ namespace Reanim2UnityAnim.Editor
 					if (spriteTracks.Find(spriteTrack => spriteTrack.ImageName == sprite && spriteTrack.Name == track.Name) == null)
 					{
 						SpriteTrack spriteTrack = new SpriteTrack(track.Name, track.Transforms, index, sprite);
-						foreach (Root2Childs root2Child in config.root2Childs)
-						{
-							if (root2Child.childs.Contains(track.Name))
-							{
-								spriteTrack.Parent = rootTracks.Find(rootTrack => rootTrack.Name == root2Child.root);
-							}
-						}
+						spriteTrack.Parent = currentRoot;
 						spriteTracks.Add(spriteTrack);
 					}
 				}
@@ -211,24 +211,10 @@ namespace Reanim2UnityAnim.Editor
 			}
 		}
 
-		private static List<RootTrack> ParseRoots(Reanim2UnityAnimConfig config, List<Track> tracks)
-		{
-			List<RootTrack> rootTracks = new List<RootTrack>();
-			foreach (Track track in tracks)
-			{
-				if (config.root2Childs.Any(root2Child => root2Child.root == track.Name))
-				{
-					RootTrack spriteTrack = new RootTrack(track.Name, track.Transforms);
-					rootTracks.Add(spriteTrack);
-				}
-			}
-			return rootTracks;
-		}
-
 		private static void BindKeyframes(List<Keyframe> keyframes, AnimationClip clip, string relativePath, Type componentType, string propertyName)
 		{
 			AnimationCurve curve = new AnimationCurve(keyframes.ToArray());
-			if (propertyName == "material._IsVisible")
+			if (propertyName is "material._IsVisible" or "material._Alpha")
 			{
 				for (int i = 0; i < curve.length; i++)
 				{
