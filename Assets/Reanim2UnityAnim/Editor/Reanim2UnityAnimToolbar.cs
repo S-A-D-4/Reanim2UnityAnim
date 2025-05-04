@@ -10,19 +10,6 @@ namespace Reanim2UnityAnim.Editor
 		[CanBeNull]
 		private Reanim2UnityAnimConfig data;
 
-		[MenuItem("Window/Reanim2UnityAnim")]
-		public static void ShowWindow()
-		{
-			GetWindow<Reanim2UnityAnimToolbar>("Reanim2UnityAnimToolbar");
-		}
-
-		private void SaveData()
-		{
-			EditorUtility.SetDirty(data);
-			AssetDatabase.SaveAssets();
-			AssetDatabase.Refresh();
-		}
-
 		private void OnGUI()
 		{
 			data = (Reanim2UnityAnimConfig)EditorGUILayout.ObjectField(data, typeof(Reanim2UnityAnimConfig), false);
@@ -32,31 +19,24 @@ namespace Reanim2UnityAnim.Editor
 				GUILayout.Label("未选择配置文件。");
 				return;
 			}
-			
+
 			GUILayout.Label($"当前选择的reanim文件: \n{data.filePath}");
 
 			// 文件夹选择按钮
 			if (GUILayout.Button("选择文件"))
 			{
-				string path = EditorUtility.OpenFilePanelWithFilters("选择.reanim文件", Application.dataPath + "/Reanim2UnityAnim/reanim_all/", new[]
-				{ "reanim", "Reanim" });
+				string path = EditorUtility.OpenFilePanelWithFilters("选择.reanim文件", Application.dataPath + "/Reanim2UnityAnim/reanim_all/",
+					new[] { "reanim", "Reanim" });
 				if (!string.IsNullOrEmpty(path) && path.EndsWith(".reanim"))
-				{
 					data.filePath = path;
-				}
 				else
-				{
 					Debug.Log("未选择.reanim文件");
-				}
 			}
 
 			data.center = EditorGUILayout.Vector2Field("中心", data.center);
 
 			// 自定义分段
-			if (GUILayout.Button("添加自定义分段"))
-			{
-				data.customPartitions.Add(new Partition("UnNamedPartition", 0, 0));
-			}
+			if (GUILayout.Button("添加自定义分段")) data.customPartitions.Add(new Partition("UnNamedPartition", 0, 0));
 
 			for (int i = 0; i < data.customPartitions.Count; i++)
 			{
@@ -76,16 +56,27 @@ namespace Reanim2UnityAnim.Editor
 				GUILayout.EndHorizontal();
 			}
 
-			// 操作按钮
-			if (GUILayout.Button("生成"))
-			{
-				UnitBuilder.Create(data);
-			}
+			// 模式选择
+			data.mode = (Mode)EditorGUILayout.EnumPopup("模式", data.mode);
 
-			if (GUILayout.Button("保存配置"))
-			{
-				SaveData();
-			}
+
+			// 操作按钮
+			if (GUILayout.Button("生成")) UnitBuilder.Create(data);
+
+			if (GUILayout.Button("保存配置")) SaveData();
+		}
+
+		[MenuItem("Window/Reanim2UnityAnim")]
+		public static void ShowWindow()
+		{
+			GetWindow<Reanim2UnityAnimToolbar>("Reanim2UnityAnimToolbar");
+		}
+
+		private void SaveData()
+		{
+			EditorUtility.SetDirty(data);
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
 		}
 	}
 }

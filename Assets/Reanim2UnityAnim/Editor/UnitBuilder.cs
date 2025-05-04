@@ -26,12 +26,11 @@ namespace Reanim2UnityAnim.Editor
 			List<AnimationClip> clips = new List<AnimationClip>();
 			foreach (Partition partition in partitions)
 			{
-				AnimationClip clip = new AnimationClip
-				{ frameRate = 12, name = partition.name };
+				AnimationClip clip = new AnimationClip { frameRate = 12, name = partition.name };
 
-				CreateRootFrames(rootTracks, partition, clip, config.center);
+				CreateRootFrames(rootTracks, partition, clip, config.center, config.mode);
 
-				CreateSpriteFrames(spriteTracks, partition, clip, config.center);
+				CreateSpriteFrames(spriteTracks, partition, clip, config.center, config.mode);
 
 				clips.Add(clip);
 			}
@@ -39,7 +38,7 @@ namespace Reanim2UnityAnim.Editor
 			CreateAssets(config.name, spriteTracks, clips);
 		}
 
-		private static void CreateSpriteFrames(List<SpriteTrack> spriteTracks, Partition partition, AnimationClip clip, Vector2 center)
+		private static void CreateSpriteFrames(List<SpriteTrack> spriteTracks, Partition partition, AnimationClip clip, Vector2 center, Mode mode)
 		{
 			foreach (SpriteTrack spriteTrack in spriteTracks)
 			{
@@ -112,18 +111,18 @@ namespace Reanim2UnityAnim.Editor
 					}
 				}
 
-				BindKeyframes(keyframesX, clip, spriteTrack.Path, typeof(Transform), "localPosition.x");
-				BindKeyframes(keyframesY, clip, spriteTrack.Path, typeof(Transform), "localPosition.y");
-				BindKeyframes(keyframesAngleX, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._AngleX");
-				BindKeyframes(keyframesAngleY, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._AngleY");
-				BindKeyframes(keyframesSx, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._ScaleX");
-				BindKeyframes(keyframesSy, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._ScaleY");
-				BindKeyframes(keyframesF, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._IsVisible");
-				BindKeyframes(keyframesA, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._Alpha");
+				BindKeyframes(keyframesX, clip, spriteTrack.Path, typeof(Transform), "localPosition.x", mode);
+				BindKeyframes(keyframesY, clip, spriteTrack.Path, typeof(Transform), "localPosition.y", mode);
+				BindKeyframes(keyframesAngleX, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._AngleX", mode);
+				BindKeyframes(keyframesAngleY, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._AngleY", mode);
+				BindKeyframes(keyframesSx, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._ScaleX", mode);
+				BindKeyframes(keyframesSy, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._ScaleY", mode);
+				BindKeyframes(keyframesF, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._IsVisible", mode);
+				BindKeyframes(keyframesA, clip, spriteTrack.Path, typeof(SpriteRenderer), "material._Alpha", mode);
 			}
 		}
 
-		private static void CreateRootFrames(List<RootTrack> rootTracks, Partition partition, AnimationClip clip, Vector2 center)
+		private static void CreateRootFrames(List<RootTrack> rootTracks, Partition partition, AnimationClip clip, Vector2 center, Mode mode)
 		{
 			foreach (RootTrack rootTrack in rootTracks)
 			{
@@ -149,8 +148,8 @@ namespace Reanim2UnityAnim.Editor
 						if (y != null) keyframesY.Add(new Keyframe(currentTime, y.Value + center.y));
 					}
 				}
-				BindKeyframes(keyframesX, clip, rootTrack.Name, typeof(Transform), "localPosition.x");
-				BindKeyframes(keyframesY, clip, rootTrack.Name, typeof(Transform), "localPosition.y");
+				BindKeyframes(keyframesX, clip, rootTrack.Name, typeof(Transform), "localPosition.x", mode);
+				BindKeyframes(keyframesY, clip, rootTrack.Name, typeof(Transform), "localPosition.y", mode);
 			}
 		}
 
@@ -166,15 +165,11 @@ namespace Reanim2UnityAnim.Editor
 					rootTracks.Add(groundTrack);
 					continue;
 				}
-				
+
 				List<string> sprites = new List<string>();
 				foreach (Frame frame in track.Transforms)
-				{
 					if (frame.Image != null)
-					{
 						sprites.Add(frame.Image);
-					}
-				}
 				if (sprites.Count == 0)
 				{
 					Partition partition = new Partition(track);
@@ -188,37 +183,25 @@ namespace Reanim2UnityAnim.Editor
 				}
 
 				foreach (string sprite in sprites)
-				{
 					if (spriteTracks.Find(spriteTrack => spriteTrack.ImageName == sprite && spriteTrack.Name == track.Name) == null)
 					{
 						SpriteTrack spriteTrack = new SpriteTrack(track.Name, track.Transforms, index, sprite);
 						spriteTrack.Parent = currentRoot;
 						spriteTracks.Add(spriteTrack);
 					}
-				}
 			}
 			IEnumerable<IGrouping<string, SpriteTrack>> groupBy = spriteTracks.GroupBy(track => track.ImageName);
 
 			foreach (IGrouping<string, SpriteTrack> group in groupBy)
-			{
 				if (group.Count() == 1)
-				{
 					foreach (SpriteTrack spriteTrack in group)
-					{
 						spriteTrack.Name = spriteTrack.ImageName;
-					}
-				}
 				else
-				{
 					foreach (SpriteTrack spriteTrack in group)
-					{
 						spriteTrack.Name = $"{spriteTrack.ImageName}({spriteTrack.Name})";
-					}
-				}
-			}
 		}
 
-		private static void BindKeyframes(List<Keyframe> keyframes, AnimationClip clip, string relativePath, Type componentType, string propertyName)
+		private static void BindKeyframes(List<Keyframe> keyframes, AnimationClip clip, string relativePath, Type componentType, string propertyName, Mode mode)
 		{
 			AnimationCurve curve = new AnimationCurve(keyframes.ToArray());
 			if (propertyName is "material._IsVisible" or "material._Alpha")
@@ -231,9 +214,16 @@ namespace Reanim2UnityAnim.Editor
 			}
 			else
 			{
+				AnimationUtility.TangentMode tangentMode = mode switch
+				{ Mode.平滑模式 => AnimationUtility.TangentMode.Auto,
+				  Mode.线性模式 => AnimationUtility.TangentMode.Linear,
+				  Mode.帧动画  => AnimationUtility.TangentMode.Constant,
+				  _         => throw new ArgumentOutOfRangeException(nameof(mode), mode, null) };
+
 				for (int i = 0; i < curve.length; i++)
 				{
-					curve.SmoothTangents(i, 0);
+					AnimationUtility.SetKeyLeftTangentMode(curve, i, tangentMode);
+					AnimationUtility.SetKeyRightTangentMode(curve, i, tangentMode);
 				}
 			}
 			clip.SetCurve(relativePath, componentType, propertyName, curve);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Reanim2UnityAnim.Editor.Data
 {
@@ -12,5 +11,6 @@ namespace Reanim2UnityAnim.Editor.Data
 		public string filePath;
 		public Vector2 center = new Vector2(0.4f, 0.7f);
 		public List<Partition> customPartitions = new List<Partition>();
+		public Mode mode = Mode.平滑模式;
 	}
 }
